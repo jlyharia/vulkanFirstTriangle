@@ -21,5 +21,6 @@ message("-- Libraries: " ${LIBRARIES})
 message("-- CMAKE_SOURCE_DIR " ${CMAKE_SOURCE_DIR})
 message("-- CMAKE_COMMAND " ${CMAKE_COMMAND})
 
-add_executable(firstTriangle main.cpp ${SOURCE_FILES})
+add_executable(firstTriangle main.cpp ${SOURCE_FILES}
+        Utils.hpp)
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

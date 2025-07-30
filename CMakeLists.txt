@@ -1,11 +1,18 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.22)
 project(firstTriangle)
 
 include(${PROJECT_SOURCE_DIR}/cmake/macro.cmake)
-set(CMAKE_DEFAULT_MODULE_LIST /opt/homebrew/opt/cmake/share/cmake/Modules)
+if(APPLE)
+        set(CMAKE_DEFAULT_MODULE_LIST /opt/homebrew/opt/cmake/share/cmake/Modules)
+        set(HOMEBREW_INCLUDE_PATH /opt/homebrew/include)
+        set(HOMEBREW_LIB_PATH /opt/homebrew/libs)
+else()
+        set(CMAKE_DEFAULT_MODULE_LIST /usr/share/cmake-3.22/Modules)
+        set(HOMEBREW_INCLUDE_PATH /usr/include)
+        set(HOMEBREW_LIB_PATH /usr/lib)
+endif(APPLE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
-set(HOMEBREW_INCLUDE_PATH /opt/homebrew/include)
-set(HOMEBREW_LIB_PATH /opt/homebrew/libs)
+
 
 message("-- CMAKE_DEFAULT_MODULE_LIST: " ${CMAKE_DEFAULT_MODULE_LIST})
 
@@ -33,10 +40,17 @@ message("-- CMAKE_COMMAND " ${CMAKE_COMMAND})
 #         DEPENDS ${CMAKE_BINARY_DIR}/output.txt)
 
 # execute_process run every time during cmake reload
-execute_process(
-        COMMAND bash ${CMAKE_SOURCE_DIR}/compile.sh
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
+if(APPLE)
+        execute_process(
+                COMMAND bash ${CMAKE_SOURCE_DIR}/compile.sh
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+else()
+        execute_process(
+                COMMAND bash ${CMAKE_SOURCE_DIR}/compile-linux.sh
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
+endif()
 add_executable(firstTriangle main.cpp ${SOURCE_FILES}
         Utils.hpp)
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

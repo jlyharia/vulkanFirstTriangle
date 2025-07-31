@@ -17,3 +17,7 @@
     createInfo.enabledExtensionCount = 1;
     createInfo.ppEnabledExtensionNames = deviceExtensions;
     ```
+
+# For Linux
+
+Need to install cmake tool and config IntelliSense to cmake to let MS Code remove error highlight

@@ -10,8 +10,9 @@
             "cwd": "${workspaceFolder}/build",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb",
+            "MIMode": "gdb",
             "preLaunchTask": "C/C++: clang++ build active file",
+            
         }
     ],
     "version": "2.0.0"

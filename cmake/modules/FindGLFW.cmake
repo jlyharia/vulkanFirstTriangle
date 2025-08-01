@@ -32,6 +32,16 @@ elseif (APPLE)
             PATHS ${HOMEBREW_LIB_PATH}
             DOC "The GLFW library")
 ELSE ()
+    find_path(GLFW_INCLUDE_DIRS
+            NAMES GLFW/glfw3.h
+            PATHS ${HOMEBREW_INCLUDE_PATH}
+            DOC "The boost include directory")
+
+    find_library(GLFW_LIBRARIES
+            NAMES
+            glfw
+            PATHS ${HOMEBREW_LIB_PATH}
+            DOC "The GLFW library")
     message(STATUS "Building on other platform")
 ENDIF (WIN32)
 

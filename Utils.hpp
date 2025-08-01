@@ -5,6 +5,8 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <iostream>
+#include <vector>
+#include <vulkan/vulkan_core.h>
 
 void checkAvailablePhysicalDeviceExtension(VkPhysicalDevice &physicalDevice) {
     uint32_t phExtensionCount = 0;

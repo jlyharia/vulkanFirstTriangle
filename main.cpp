@@ -16,7 +16,7 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const int MAX_FRAMES_IN_FLIGHT = 4;
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
@@ -110,19 +110,14 @@ class HelloTriangleApplication {
     uint32_t currentFrame = 0;
 
     bool framebufferResized = false;
+
     void initWindow() {
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        // glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
-        // It is important to do this after vkQueuePresentKHR to ensure that the
-        // semaphores are in a consistent state, otherwise a signaled semaphore
-        // may never be properly waited upon. Now to actually detect resizes we
-        // can use the glfwSetFramebufferSizeCallback function in the GLFW
-        // framework to set up a callback:
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
 
@@ -158,6 +153,18 @@ class HelloTriangleApplication {
         vkDeviceWaitIdle(device);
     }
 
+    void cleanupSwapChain() {
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        }
+
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(device, imageView, nullptr);
+        }
+
+        vkDestroySwapchainKHR(device, swapChain, nullptr);
+    }
+
     void cleanup() {
         cleanupSwapChain();
 
@@ -188,18 +195,6 @@ class HelloTriangleApplication {
         glfwTerminate();
     }
 
-    void cleanupSwapChain() {
-        for (auto framebuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(device, framebuffer, nullptr);
-        }
-
-        for (auto imageView : swapChainImageViews) {
-            vkDestroyImageView(device, imageView, nullptr);
-        }
-
-        vkDestroySwapchainKHR(device, swapChain, nullptr);
-    }
-
     void recreateSwapChain() {
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
@@ -207,10 +202,11 @@ class HelloTriangleApplication {
             glfwGetFramebufferSize(window, &width, &height);
             glfwWaitEvents();
         }
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Swap_chain_recreation
+
         vkDeviceWaitIdle(device);
 
         cleanupSwapChain();
+
         createSwapChain();
         createImageViews();
         createFramebuffers();
@@ -307,18 +303,7 @@ class HelloTriangleApplication {
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
         for (const auto& device : devices) {
-            VkPhysicalDeviceProperties props;
-            vkGetPhysicalDeviceProperties(device, &props);
-            std::cout << "checking physical device = " << props.deviceName
-                      << '\n';
-
-            if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
-                continue;
-            }
-
             if (isDeviceSuitable(device)) {
-                std::cout << "Selected physical device = " << props.deviceName
-                          << '\n';
                 physicalDevice = device;
                 break;
             }
@@ -424,8 +409,6 @@ class HelloTriangleApplication {
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
-
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
 
         if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) !=
             VK_SUCCESS) {
@@ -672,6 +655,7 @@ class HelloTriangleApplication {
 
     void createCommandBuffers() {
         commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = commandPool;
@@ -688,7 +672,7 @@ class HelloTriangleApplication {
                              uint32_t imageIndex) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        // beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error(
                 "failed to begin recording command buffer!");
@@ -712,7 +696,7 @@ class HelloTriangleApplication {
                           graphicsPipeline);
 
         VkViewport viewport{};
-        viewport.x = 2.0f;
+        viewport.x = 0.0f;
         viewport.y = 0.0f;
         viewport.width = (float) swapChainExtent.width;
         viewport.height = (float) swapChainExtent.height;
@@ -726,16 +710,7 @@ class HelloTriangleApplication {
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-        /*
-        commandbuffer:
-        vertexCount: Even though we don't have a vertex buffer, we technically
-        still have 3 vertices to draw. instanceCount: Used for instanced
-        rendering, use 1 if you're not doing that. firstVertex: Used as an
-        offset into the vertex buffer, defines the lowest value of
-        gl_VertexIndex. firstInstance: Used as an offset for instanced
-        rendering, defines the lowest value of gl_InstanceIndex.
 
-        */
         vkCmdEndRenderPass(commandBuffer);
 
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
@@ -744,9 +719,9 @@ class HelloTriangleApplication {
     }
 
     void createSyncObjects() {
-        imageAvailableSemaphores.resize(swapChainImages.size());
-        renderFinishedSemaphores.resize(swapChainImages.size());
-        inFlightFences.resize(swapChainImages.size());
+        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -755,7 +730,7 @@ class HelloTriangleApplication {
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < swapChainImages.size(); i++) {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if (vkCreateSemaphore(device, &semaphoreInfo, nullptr,
                                   &imageAvailableSemaphores[i]) != VK_SUCCESS ||
                 vkCreateSemaphore(device, &semaphoreInfo, nullptr,
@@ -778,8 +753,13 @@ class HelloTriangleApplication {
                                   imageAvailableSemaphores[currentFrame],
                                   VK_NULL_HANDLE, &imageIndex);
 
-        // Only reset the fence if we are submitting work to avoid dead lock
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Swap_chain_recreation
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            return;
+        } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            throw std::runtime_error("failed to acquire swap chain image!");
+        }
+
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
         vkResetCommandBuffer(commandBuffers[currentFrame],
@@ -821,11 +801,8 @@ class HelloTriangleApplication {
 
         presentInfo.pImageIndices = &imageIndex;
 
-        vkQueuePresentKHR(presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        // It is important to do this after vkQueuePresentKHR to ensure that the
-        // semaphores are in a consistent state, otherwise a signaled semaphore
-        // may never be properly waited upon.
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
             framebufferResized) {
             framebufferResized = false;
@@ -833,6 +810,7 @@ class HelloTriangleApplication {
         } else if (result != VK_SUCCESS) {
             throw std::runtime_error("failed to present swap chain image!");
         }
+
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 

@@ -51,6 +51,5 @@ else()
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
 endif()
-add_executable(firstTriangle main.cpp ${SOURCE_FILES}
-        Utils.hpp)
+add_executable(firstTriangle main.cpp Vertex.hpp ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

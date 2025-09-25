@@ -52,5 +52,7 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "expected": "cpp"
-    }
+    },
+    "cmake.generator": "Ninja",
+    "cmake.configureOnOpen": true
 }

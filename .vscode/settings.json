@@ -51,7 +51,8 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "chrono": "cpp"
     },
     "cmake.generator": "Ninja",
     "cmake.configureOnOpen": true

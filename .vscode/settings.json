@@ -52,7 +52,14 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "expected": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "charconv": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp",
+        "format": "cpp",
+        "iomanip": "cpp",
+        "text_encoding": "cpp",
+        "variant": "cpp"
     },
     "cmake.generator": "Ninja",
     "cmake.configureOnOpen": true

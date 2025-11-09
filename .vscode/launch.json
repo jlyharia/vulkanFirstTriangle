@@ -8,11 +8,15 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
-            "environment": [],
+            "environment": [
+                {
+                    "name": "GLFW_USE_WAYLAND",
+                    "value": "0"
+                }
+            ],
             "externalConsole": false,
             "MIMode": "gdb",
             "preLaunchTask": "C/C++: clang++ build active file",
-            
         }
     ],
     "version": "2.0.0"

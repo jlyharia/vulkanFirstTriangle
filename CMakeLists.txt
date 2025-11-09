@@ -8,8 +8,8 @@ if(APPLE)
         set(HOMEBREW_LIB_PATH /opt/homebrew/libs)
 else()
         set(CMAKE_DEFAULT_MODULE_LIST /opt/cmake/share/cmake-4.1/Modules)
-        set(HOMEBREW_INCLUDE_PATH /usr/include)
-        set(HOMEBREW_LIB_PATH /usr/lib)
+        set(HOMEBREW_INCLUDE_PATH /usr/include /usr/local/include)
+        set(HOMEBREW_LIB_PATH /usr/lib /usr/local/lib)
 endif(APPLE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -51,5 +51,18 @@ else()
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
 endif()
+
+
+
 add_executable(firstTriangle main.cpp Vertex.hpp ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+target_link_libraries(firstTriangle ${LIBRARIES})
+include_directories(${CMAKE_SOURCE_DIR})
+
+# copy texture, put this after add_executable(..) 
+add_custom_command(
+        TARGET firstTriangle POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/textures
+        $<TARGET_FILE_DIR:firstTriangle>/textures
+        COMMENT "Copying textures folder to build directory"
+)

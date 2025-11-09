@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "C/C++: clang++ build and debug active file",
+            "name": "Linux Vulkan Debug",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/firstTriangle",
@@ -16,7 +16,16 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
-            "preLaunchTask": "C/C++: clang++ build active file",
+            "preLaunchTask": "C/C++: clang++ build active file"
+        },
+        {
+            "name": "Linux Vulkan Release",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/firstTriangle",
+            "cwd": "${workspaceFolder}/build",
+            "MIMode": "gdb",
+            "preLaunchTask": "Build Vulkan Release"
         }
     ],
     "version": "2.0.0"

@@ -22,6 +22,8 @@
 #include <optional>
 #include <set>
 #include "Vertex.hpp"
+#include <unistd.h>
+#include <limits.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -1465,6 +1467,15 @@ private:
     }
 
     static std::vector<char> readFile(const std::string& filename) {
+        char cwd[PATH_MAX];
+        if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+            std::cout << "Current working directory: " << cwd << std::endl;
+        }
+        else {
+            perror("getcwd() error");
+        }
+
+
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) {

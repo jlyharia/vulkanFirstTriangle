@@ -40,23 +40,25 @@ message("-- CMAKE_COMMAND " ${CMAKE_COMMAND})
 #         DEPENDS ${CMAKE_BINARY_DIR}/output.txt)
 
 # execute_process run every time during cmake reload
-if(APPLE)
-        execute_process(
-                COMMAND bash ${CMAKE_SOURCE_DIR}/compile.sh
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-else()
-        execute_process(
-                COMMAND bash ${CMAKE_SOURCE_DIR}/compile-linux.sh
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-endif()
+# if(APPLE)
+#         execute_process(
+#                 COMMAND bash ${CMAKE_SOURCE_DIR}/compile.sh
+#                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#         )
+# else()
+#         execute_process(
+#                 COMMAND bash ${CMAKE_SOURCE_DIR}/compile-linux.sh
+#                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#         )
+# endif()
 
 
 
 add_executable(firstTriangle main.cpp Vertex.hpp ${SOURCE_FILES})
 target_link_libraries(firstTriangle ${LIBRARIES})
 include_directories(${CMAKE_SOURCE_DIR})
+
+
 
 # copy texture, put this after add_executable(..) 
 add_custom_command(
@@ -66,3 +68,33 @@ add_custom_command(
         $<TARGET_FILE_DIR:firstTriangle>/textures
         COMMENT "Copying textures folder to build directory"
 )
+
+
+# Ensure build/shaders folder exists
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
+
+# Find glslangValidator
+find_program(GLSLANG_VALIDATOR glslangValidator)
+if(NOT GLSLANG_VALIDATOR)
+        message(FATAL_ERROR "glslangValidator not found! Make sure Vulkan SDK is installed.")
+endif()
+
+# GLSL → SPV
+add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/shaders/vert.spv
+        COMMAND ${GLSLANG_VALIDATOR} -V ${CMAKE_SOURCE_DIR}/shaders/09_shader_base.vert -o ${CMAKE_BINARY_DIR}/shaders/vert.spv
+        DEPENDS ${CMAKE_SOURCE_DIR}/shaders/09_shader_base.vert
+)
+
+add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/shaders/frag.spv
+        COMMAND ${GLSLANG_VALIDATOR} -V ${CMAKE_SOURCE_DIR}/shaders/09_shader_base.frag -o ${CMAKE_BINARY_DIR}/shaders/frag.spv
+        DEPENDS ${CMAKE_SOURCE_DIR}/shaders/09_shader_base.frag
+)
+
+add_custom_target(Shaders ALL DEPENDS
+        ${CMAKE_BINARY_DIR}/shaders/vert.spv
+        ${CMAKE_BINARY_DIR}/shaders/frag.spv
+)
+
+add_dependencies(firstTriangle Shaders)

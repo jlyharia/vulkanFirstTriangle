@@ -21,3 +21,6 @@
 # For Linux
 
 Need to install cmake tool and config IntelliSense to cmake to let MS Code remove error highlight
+
+11/92025
+After upgrade to Ubuntu 25.10. I need to manually build GLFW with X11 not wayland because nVidia doesn't work well on wayland + linux

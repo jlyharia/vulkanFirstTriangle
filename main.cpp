@@ -166,6 +166,7 @@ private:
         createCommandPool();
         createTextureImage();
         createTextureImageView();
+        createTextureSampler();
         createVertexBuffer();
         createIndexBuffer();
         createUniformBuffers();

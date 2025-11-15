@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 4.1)
 project(firstTriangle)
 
+set(TARGET_NAME firstTriangle)
 include(${PROJECT_SOURCE_DIR}/cmake/macro.cmake)
 if(APPLE)
         set(CMAKE_DEFAULT_MODULE_LIST /opt/homebrew/opt/cmake/share/cmake/Modules)
@@ -28,46 +29,43 @@ message("-- Libraries: " ${LIBRARIES})
 message("-- CMAKE_SOURCE_DIR " ${CMAKE_SOURCE_DIR})
 message("-- CMAKE_COMMAND " ${CMAKE_COMMAND})
 
-# add_custom_command only run when cmake build
-# add_custom_command(
-#         OUTPUT ${CMAKE_BINARY_DIR}/output.txt
-#         COMMAND ${CMAKE_COMMAND} -E echo "=== Compile GLSL file into SPIR-V ==="
-#         COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/compile.sh
-#         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-# )
-# add_custom_target(
-#         generate_output ALL
-#         DEPENDS ${CMAKE_BINARY_DIR}/output.txt)
 
-# execute_process run every time during cmake reload
-# if(APPLE)
-#         execute_process(
-#                 COMMAND bash ${CMAKE_SOURCE_DIR}/compile.sh
-#                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#         )
-# else()
-#         execute_process(
-#                 COMMAND bash ${CMAKE_SOURCE_DIR}/compile-linux.sh
-#                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#         )
-# endif()
+# add_executable(firstTriangle main.cpp Vertex.hpp external/tiny_obj_loader.h ${SOURCE_FILES})
+# target_link_libraries(firstTriangle ${LIBRARIES})
+# include_directories(${CMAKE_SOURCE_DIR})
+
+add_executable(firstTriangle
+    main.cpp
+    ${SOURCE_FILES}
+)
+
+target_include_directories(firstTriangle
+    PRIVATE ${CMAKE_SOURCE_DIR}
+    PRIVATE ${CMAKE_SOURCE_DIR}/external
+)
+
+target_link_libraries(firstTriangle
+    PRIVATE ${LIBRARIES}
+)
 
 
-
-add_executable(firstTriangle main.cpp Vertex.hpp ${SOURCE_FILES})
-target_link_libraries(firstTriangle ${LIBRARIES})
-include_directories(${CMAKE_SOURCE_DIR})
-
-
-
-# copy texture, put this after add_executable(..) 
+# copy assets, models, texture ...etc put this after add_executable(..) 
 add_custom_command(
-        TARGET firstTriangle POST_BUILD
+        TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/textures
-        $<TARGET_FILE_DIR:firstTriangle>/textures
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:firstTriangle>/assets
         COMMENT "Copying textures folder to build directory"
 )
+
+# add_custom_command(
+#         TARGET ${TARGET_NAME} POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         ${CMAKE_SOURCE_DIR}/assets/textures
+#         $<TARGET_FILE_DIR:firstTriangle>/assets/textures
+#         COMMENT "Copying textures folder to build directory"
+# )
+
 
 
 # Ensure build/shaders folder exists

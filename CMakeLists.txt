@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 4.1)
 project(firstTriangle)
 
+set(TARGET_NAME firstTriangle)
 include(${PROJECT_SOURCE_DIR}/cmake/macro.cmake)
 if(APPLE)
         set(CMAKE_DEFAULT_MODULE_LIST /opt/homebrew/opt/cmake/share/cmake/Modules)
@@ -48,14 +49,23 @@ target_link_libraries(firstTriangle
 )
 
 
-# copy texture, put this after add_executable(..) 
+# copy assets, models, texture ...etc put this after add_executable(..) 
 add_custom_command(
-        TARGET firstTriangle POST_BUILD
+        TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets/textures
-        $<TARGET_FILE_DIR:firstTriangle>/assets/textures
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:firstTriangle>/assets
         COMMENT "Copying textures folder to build directory"
 )
+
+# add_custom_command(
+#         TARGET ${TARGET_NAME} POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         ${CMAKE_SOURCE_DIR}/assets/textures
+#         $<TARGET_FILE_DIR:firstTriangle>/assets/textures
+#         COMMENT "Copying textures folder to build directory"
+# )
+
 
 
 # Ensure build/shaders folder exists

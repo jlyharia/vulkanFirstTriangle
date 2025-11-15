@@ -36,8 +36,9 @@ We need to configure it to use the Vulkan range of 0.0 to 1.0 using the GLM_FORC
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "assets/models/viking_room.obj";
+const std::string MODEL_PATH = "assets/models";
 const std::string TEXTURE_PATH = "assets/textures/viking_room.png";
+const std::string MODEL_FILENAME = "assets/models/viking_room.obj";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -277,7 +278,7 @@ private:
         glfwTerminate();
     }
 
-     void recreateSwapChain() {
+    void recreateSwapChain() {
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
         while (width == 0 || height == 0) {
@@ -987,8 +988,13 @@ private:
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         std::string err;
+        std::string warn;
 
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, MODEL_PATH.c_str())) {
+        bool isLoadObj = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
+            MODEL_FILENAME.c_str(), MODEL_PATH.c_str(), true, true);
+
+        if (!isLoadObj)
+        {
             throw std::runtime_error(err);
         }
 
@@ -1009,7 +1015,7 @@ private:
                     1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
                 };
 
-                vertex.color = {1.0f, 1.0f, 1.0f};
+                vertex.color = { 1.0f, 1.0f, 1.0f };
 
                 if (uniqueVertices.count(vertex) == 0) {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());

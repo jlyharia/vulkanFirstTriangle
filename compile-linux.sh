@@ -11,3 +11,4 @@ else
 fi
 glslc ../shaders/09_shader_base.vert -o shaders/vert.spv
 glslc ../shaders/09_shader_base.frag -o shaders/frag.spv
+glslc ../shaders/31_shader_base.comp -o shaders/comp.spv

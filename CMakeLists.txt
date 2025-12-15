@@ -58,16 +58,6 @@ add_custom_command(
         COMMENT "Copying textures folder to build directory"
 )
 
-# add_custom_command(
-#         TARGET ${TARGET_NAME} POST_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E copy_directory
-#         ${CMAKE_SOURCE_DIR}/assets/textures
-#         $<TARGET_FILE_DIR:firstTriangle>/assets/textures
-#         COMMENT "Copying textures folder to build directory"
-# )
-
-
-
 # Ensure build/shaders folder exists
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
 
@@ -90,9 +80,16 @@ add_custom_command(
         DEPENDS ${CMAKE_SOURCE_DIR}/shaders/09_shader_base.frag
 )
 
+add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/shaders/comp.spv
+        COMMAND ${GLSLANG_VALIDATOR} -V ${CMAKE_SOURCE_DIR}/shaders/31_shader_base.comp -o ${CMAKE_BINARY_DIR}/shaders/comp.spv
+        DEPENDS ${CMAKE_SOURCE_DIR}/shaders/31_shader_base.comp
+)
+
 add_custom_target(Shaders ALL DEPENDS
         ${CMAKE_BINARY_DIR}/shaders/vert.spv
         ${CMAKE_BINARY_DIR}/shaders/frag.spv
+        ${CMAKE_BINARY_DIR}/shaders/comp.spv
 )
 
 add_dependencies(firstTriangle Shaders)
